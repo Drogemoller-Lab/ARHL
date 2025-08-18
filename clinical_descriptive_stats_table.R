@@ -1,5 +1,5 @@
 library(dplyr)
-#to calculate statistics
+#to calculate statistics in summary table
 #load clinical variables from the covariate file
 metabolic <- read.table("/home/projects/hearing_loss/clsa_v2/phenotypes/metabolic.txt", header = TRUE)
 sensory <- read.table("/home/projects/hearing_loss/clsa_v2/phenotypes/sensory.txt", header = TRUE)

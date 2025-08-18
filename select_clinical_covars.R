@@ -8,6 +8,8 @@ library(BSDA)
 library(broom)
 library(viridis)
 library(stats)
+
+
 setwd("/home/projects/archive/CLSA/raw_data/clinical_data/")
 master <- as.character(unzip("2104035_UManitoba_BDrogemoller_Baseline.zip", list = TRUE)$Name)
 PhenData <- read.csv(unz("2104035_UManitoba_BDrogemoller_Baseline.zip",
@@ -16,6 +18,7 @@ PhenData <- read.csv(unz("2104035_UManitoba_BDrogemoller_Baseline.zip",
 Dictionary <- read_xlsx("2104035_UManitoba_BDrogemoller_Baseline/2104035_UManitoba_BDrogemoller_CoP6_Baseline-dictionary.xlsx")
 metabolic <- read.table("/home/projects/hearing_loss/clsaARHL_SA/phenotypes/metabolic.txt", header = TRUE)
 sensory <- read.table("/home/projects/hearing_loss/clsaARHL_SA/phenotypes/sensory.txt", header = TRUE)
+
 #select relevant columns
 metabolic.phen <- metabolic %>%
   select(FID, better.rank)
