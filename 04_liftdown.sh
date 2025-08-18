@@ -1,13 +1,13 @@
 GWAS_TOOLS=/opt/github_repository/summary-gwas-imputation/src
-DATA=/home/projects/hearing_loss/clsaARHL_SA/gwasToLiftover
-OUTPUT=/home/projects/hearing_loss/clsaARHL_SA/gwasLifted
+DATA=/home/projects/hearing_loss/clsaARHL_SA/polyfun_noopp
+OUTPUT=/home/projects/hearing_loss/clsaARHL_SA/polyfun_noopp
 REF=/home/projects/archive/lab/reference_data/metaxcan/data/liftover
 
 #liftover the GWAS summary stats from genome build hg38 to hg19
 
 mkdir -p $OUTPUT
 
-for stats in "met_better" "sen_better" "met_better_cluster4" "sen_better_cluster4" "met_better_males" "met_better_females" "sen_better_males" "sen_better_females"
+for stats in "met_cluster4"
 do
 python3.8 $GWAS_TOOLS/gwas_parsing.py \
 	-gwas_file $DATA/${stats}_to_liftover.txt \
