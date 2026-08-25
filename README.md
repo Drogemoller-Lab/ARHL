@@ -122,3 +122,7 @@ Evaluates clinical variables for inclusion as covariates in the association anal
 
 ### miami_plots.R
 Generates Miami plots for the SNV and gene-based association results.
+
+## Notes
+Phenotype generation is performed separately using metabolic and sensory phenotyping code developed by Kenneth Vaden and is not included in this repository.
+
