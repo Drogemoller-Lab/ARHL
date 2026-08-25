@@ -1,6 +1,6 @@
 POLYFUN=/home/software/polyfun/
 FINEMAP=/home/ahmeds26@med.umanitoba.ca/finemap_v1.4.1_x86_64/
-DATA=/home/projects/hearing_loss/clsaARHL_SA/polyfun_noopp
+DATA=/home/projects/hearing_loss/clsaARHL_SA/polyfun
 
 #activate polyfun conda environment
 #run the munging script

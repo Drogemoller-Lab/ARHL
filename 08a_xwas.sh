@@ -3,6 +3,7 @@ FILES=/home/projects/hearing_loss/clsaARHL_SA/clsaFiles
 DATA=/home/projects/hearing_loss/clsaARHL_SA/xchr
 PLINK=/opt/plink-1.09/plink
 XWAS=/opt/github_repository/xwas-3.0-master/
+SCRIPTS=/home/projects/hearing_loss/clsaARHL_SA/scripts/ARHL
 
 #extract the SNPs that has been successfully lifted from hg38 to hg19
 $PLINK --bfile $DATA/xchr_met_better --extract \
@@ -26,7 +27,8 @@ cp /home/projects/hearing_loss/clsaARHL_SA/clsaFiles/covar_all_v2.txt .
 #Remove metabolic phenotype and sex from the covariate file
 awk '{$4=$5=""; print $0}' covar_all_v2.txt > covar_met.txt
 #run X-chr QC
-./run_QC_noPCA_noRelated.sh -s -g params_file.txt
+
+$SCRIPTS/08f_run_QC_noPCA_noRelated.sh -s -g $DATA/params_file.txt
 
 #run sex stratified XWAS with multi male models
 	--xwas --strat-sex --fishers --multi-xchr-model --covar $DATA/covar_met.txt \

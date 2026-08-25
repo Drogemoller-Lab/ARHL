@@ -79,8 +79,8 @@ sen_snps_within_genes_x <- sensory_xchr %>%
   ungroup()
 
 #write the files
-write.table(met_snps_within_genes_x, "/home/projects/hearing_loss/clsaARHL_SA/MAGMA_output/met_snps_within_genes_window_x.txt", quote = FALSE, row.names = FALSE)
-write.table(sen_snps_within_genes_x, "/home/projects/hearing_loss/clsaARHL_SA/MAGMA_output/sen_snps_within_genes_window_x.txt", quote = FALSE, row.names = FALSE)
+#write.table(met_snps_within_genes_x, "/home/projects/hearing_loss/clsaARHL_SA/MAGMA_output/met_snps_within_genes_window_x.txt", quote = FALSE, row.names = FALSE)
+#write.table(sen_snps_within_genes_x, "/home/projects/hearing_loss/clsaARHL_SA/MAGMA_output/sen_snps_within_genes_window_x.txt", quote = FALSE, row.names = FALSE)
 
 #format data frames to prepare for row bind
 met_snps_within_genes <- fread("/home/projects/hearing_loss/clsaARHL_SA/MAGMA_output/met_snps_within_genes_window.txt")
@@ -89,7 +89,7 @@ met_snps_within_genes_x <- fread("/home/projects/hearing_loss/clsaARHL_SA/MAGMA_
 sen_snps_within_genes_x <- fread("/home/projects/hearing_loss/clsaARHL_SA/MAGMA_output/sen_snps_within_genes_window_x.txt")
 
 met_snps_within_genes.format <- met_snps_within_genes |> 
-  select(chromosome, position, effect_allele, non_effect_allele, pvalue, gene) |> 
+  dplyr::select(chromosome, position, effect_allele, non_effect_allele, pvalue, gene) |> 
   dplyr::rename(CHR = chromosome,
                 BP = position,
                 A1 = effect_allele,
@@ -97,7 +97,7 @@ met_snps_within_genes.format <- met_snps_within_genes |>
                 P = pvalue)
 
 sen_snps_within_genes.format <- sen_snps_within_genes |> 
-  select(chromosome, position, effect_allele, non_effect_allele, pvalue, gene) |> 
+  dplyr::select(chromosome, position, effect_allele, non_effect_allele, pvalue, gene) |> 
   dplyr::rename(CHR = chromosome,
                 BP = position,
                 A1 = effect_allele,
@@ -105,11 +105,11 @@ sen_snps_within_genes.format <- sen_snps_within_genes |>
                 P = pvalue)
 
 met_snps_within_genes_x.format <- met_snps_within_genes_x |> 
-  select(CHR, BP, A1, A2, P_comb_Fisher, gene) |> 
+  dplyr::select(CHR, BP, A1, A2, P_comb_Fisher, gene) |> 
   dplyr::rename(P = P_comb_Fisher)
 
 sen_snps_within_genes_x.format <- sen_snps_within_genes_x |> 
-  select(CHR, BP, A1, A2, P_comb_Fisher, gene) |> 
+  dplyr::select(CHR, BP, A1, A2, P_comb_Fisher, gene) |> 
   dplyr::rename(P = P_comb_Fisher)
 
 #####
@@ -242,6 +242,51 @@ annotated_qqplot <- annotate_figure(combined_qqplot,
 ggplot2::ggsave("/home/projects/hearing_loss/clsaARHL_SA/annotated_qqplot_window.tiff",
                 height=4, width=6, units='in', dpi=300)
 
+#calculate Z scores
+# Filter invalid p-values first
+met_snps_within_genes.comb <- met_snps_within_genes.comb %>%
+  filter(!is.na(P), P > 0, P <= 1)
+
+sen_snps_within_genes.comb <- sen_snps_within_genes.comb %>%
+  filter(!is.na(P), P > 0, P <= 1)
+
+met_snps_within_genes.comb$z <- qnorm(1 - met_snps_within_genes.comb$P / 2)
+met_snps_within_genes.comb$z2 <- met_snps_within_genes.comb$z^2
+
+sen_snps_within_genes.comb$z <- qnorm(1 - sen_snps_within_genes.comb$P / 2)
+sen_snps_within_genes.comb$z2 <- sen_snps_within_genes.comb$z^2
+
+# Split by deafness gene status 
+met_deafness     <- met_snps_within_genes.comb %>% filter(deafness == "deafness_gene")
+met_non_deafness <- met_snps_within_genes.comb %>% filter(deafness == "non_deafness_gene")
+
+sen_deafness     <- sen_snps_within_genes.comb %>% filter(deafness == "deafness_gene")
+sen_non_deafness <- sen_snps_within_genes.comb %>% filter(deafness == "non_deafness_gene")
+
+# Wilcoxon test: are deafness genes more significant?
+met_wilcox <- wilcox.test(met_deafness$z2, met_non_deafness$z2, alternative = "greater")
+sen_wilcox <- wilcox.test(sen_deafness$z2, sen_non_deafness$z2, alternative = "greater")
+
+# ── Mean Z² per group ────────────────────────────────────────────────
+met_mean_Z2_deaf  <- mean(met_deafness$z2,     na.rm = TRUE)
+met_mean_Z2_other <- mean(met_non_deafness$z2, na.rm = TRUE)
+
+sen_mean_Z2_deaf  <- mean(sen_deafness$z2,     na.rm = TRUE)
+sen_mean_Z2_other <- mean(sen_non_deafness$z2, na.rm = TRUE)
+
+cat(
+  "Metabolic phenotype\n",
+  "Wilcox P =", signif(met_wilcox$p.value, 3), "\n",
+  "Mean Z² deafness =", round(met_mean_Z2_deaf, 2), "\n",
+  "Mean Z² other =", round(met_mean_Z2_other, 2), "\n\n"
+)
+
+cat(
+  "Sensory phenotype\n",
+  "Wilcox P =", signif(sen_wilcox$p.value, 3), "\n",
+  "Mean Z² deafness =", round(sen_mean_Z2_deaf, 2), "\n",
+  "Mean Z² other =", round(sen_mean_Z2_other, 2), "\n"
+)
 ###################
 #to extract the SNPs that deviated from the null line
 #get SNPs at p < 1e-5 for SNPs within all genes and p < 1e-3 for SNPs within deafness genes

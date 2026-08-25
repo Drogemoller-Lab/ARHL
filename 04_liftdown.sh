@@ -7,7 +7,7 @@ REF=/home/projects/archive/lab/reference_data/metaxcan/data/liftover
 
 mkdir -p $OUTPUT
 
-for stats in "met_cluster4"
+for stats in "sen_cluster4" "met_cluster4"
 do
 python3.8 $GWAS_TOOLS/gwas_parsing.py \
 	-gwas_file $DATA/${stats}_to_liftover.txt \
